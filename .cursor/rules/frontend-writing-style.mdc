@@ -1,0 +1,124 @@
+---
+trigger: always_on
+---
+
+# Frontend Development Standards: React Query
+
+This document defines the standardized patterns for implementing data fetching, mutations, and cache management using TanStack React Query within the Quan ERP ecosystem.
+
+> [!IMPORTANT]
+> **Every** data operation that interacts with the backend MUST use the React Query hooks pattern. Manual `useEffect` and `useState` for API synchronization are strictly prohibited.
+
+## 1. Directory & File Structure
+
+Maintain a strict separation between the API client, cache keys, and React Query hooks. These should reside in the same directory as the page or feature that uses them.
+
+- **`[feature].api.ts`**: API client using `getAxiosClient` and DTOs.
+- **`[feature].constants.ts`**: Query key definitions.
+- **`[feature].queries.ts`**: Custom `useQuery` hooks.
+- **`[feature].mutations.ts`**: Custom `useMutation` hooks.
+
+### API Implementation Details (`[feature].api.ts`)
+Every API call MUST follow this pattern to ensure compatibility with the backend's structured responses:
+
+1.  **Axios Instance**: Use `getAxiosClient()` to obtain the configured Axios instance.
+2.  **Plugin Prefix**: Use `PLUGIN_PREFIX` derived from `module.metadata.json`.
+3.  **Request DTO**: Wrap POST/PUT payloads in `new RequestDto(payload)`.
+4.  **Response Handling**: Cast `response.data` to `ResponseDto<T>`, check for errors, and return `data.payload`.
+
+```typescript
+import { getAxiosClient } from "../../lib/axios.js";
+import { RequestDto, ResponseDto } from "@quan-erp/shared-frontend-core";
+import metadata from "../../../../module.metadata.json" with { type: "json" };
+
+const PLUGIN_PREFIX = `/${metadata.name}`;
+
+export const featureApi = {
+    async getItems() {
+        const response = await getAxiosClient().get(`${PLUGIN_PREFIX}/items`);
+        const data: ResponseDto<ItemDto[]> = response.data;
+        if (data.status === "error") throw new Error(data.message);
+        return data.payload;
+    },
+    async createItem(payload: CreateDto) {
+        const response = await getAxiosClient().post(`${PLUGIN_PREFIX}/items`, new RequestDto(payload));
+        const data: ResponseDto<ItemDto> = response.data;
+        if (data.status === "error") throw new Error(data.message);
+        return data.payload;
+    }
+};
+```
+
+## 2. Query Key Management
+
+Always use a structured object for query keys. This ensures keys are predictable and allows for precise cache invalidation (Invalidating `all` will clear the list and relevant details).
+
+```typescript
+export const DATA_QUERY_KEYS = {
+    all: ["feature-namespace"] as const,
+    list: (skip?: number, limit?: number) => [...DATA_QUERY_KEYS.all, "list", { skip, limit }] as const,
+    detail: (id: string) => [...DATA_QUERY_KEYS.all, "detail", id] as const,
+};
+```
+
+## 3. Query Implementation (Read)
+
+Wrap `useQuery` in a custom hook. This encapsulates the query key logic and allows for consistent parameter handling.
+
+```typescript
+import { useQuery } from "@tanstack/react-query";
+import { featureApi } from "./feature.api";
+import { DATA_QUERY_KEYS } from "./feature.constants";
+
+export function useItemsQuery(skip?: number, limit?: number) {
+    return useQuery({
+        queryKey: DATA_QUERY_KEYS.list(skip, limit),
+        queryFn: () => featureApi.getItems(skip, limit),
+        placeholderData: (previousData) => previousData, // Optional: Smooth pagination
+    });
+}
+```
+
+## 4. Mutation Implementation (Write)
+
+Custom mutation hooks MUST handle their own UI feedback and cache invalidation.
+
+```typescript
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "@quan-erp/shared-frontend-core";
+import { featureApi } from "./feature.api";
+
+export function useCreateItemMutation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (data: CreateDto) => featureApi.createItem(data),
+        onSuccess: () => {
+            // Invalidate the entire namespace cache
+            queryClient.invalidateQueries({ queryKey: DATA_QUERY_KEYS.all });
+            toast.success("Created successfully");
+        },
+        onError: (e: Error) => {
+            toast.error(e.message ?? "Failed to create");
+        },
+    });
+}
+```
+
+## 5. UI Integration Best Practices
+
+### Loading States
+> [!TIP]
+> Use the `isLoading` (initial load) and `isPending` (mutations) flags to disable buttons and show loaders like `Loader2`.
+
+### Error Handling
+Rely on the `onError` callback in the mutation hook to trigger `toast` alerts. Avoid manual `try/catch` in components for UI-level errors.
+
+### Data Access
+Access the payload using the `data` property from the query hook. Always provide appropriate fallbacks (e.g., `const list = data?.list ?? []`).
+
+```tsx
+const { data, isLoading } = useItemsQuery();
+const items = data?.list ?? [];
+
+if (isLoading && items.length === 0) return <Loader2 className="animate-spin" />;
+```
