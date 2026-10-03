@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import type { AlbumWithCover } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { AlbumCard } from "./components";
+import { AlbumCard, EmptyState } from "./components";
 
 const ALL = "All";
 
@@ -49,17 +49,22 @@ export function AlbumFilter({ albums }: { albums: AlbumWithCover[] }) {
         </div>
       )}
 
-      <ul className="mt-10 grid gap-x-6 gap-y-12 sm:grid-cols-2 md:mt-12 md:gap-x-8 md:gap-y-16 lg:grid-cols-3">
-        {visible.map((album, i) => (
-          <li key={album.id} className={cn(i % 3 === 1 && "lg:mt-12")}>
-            <AlbumCard
-              album={album}
-              priority={i < 3}
-              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            />
-          </li>
-        ))}
-      </ul>
+      {visible.length === 0 ? (
+        <EmptyState>No albums in this category yet.</EmptyState>
+      ) : (
+        <ul className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 md:mt-12 md:gap-8">
+          {visible.map((album, i) => (
+            <li key={album.id}>
+              <AlbumCard
+                album={album}
+                index={i}
+                priority={i < 4}
+                sizes="(min-width: 768px) 40vw, 50vw"
+              />
+            </li>
+          ))}
+        </ul>
+      )}
     </>
   );
 }

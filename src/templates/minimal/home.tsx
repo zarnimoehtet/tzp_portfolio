@@ -111,13 +111,13 @@ function Albums({ albums }: { albums: HomePageProps["featuredAlbums"] }) {
           </PillLink>
         </div>
 
-        <div className="mt-12 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-          {albums.map((album, i) => (
-            <div key={album.id} className={cn("reveal", i % 3 === 1 && "lg:mt-10")}>
+        <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-5 md:gap-8">
+          {albums.slice(0, 4).map((album, i) => (
+            <div key={album.id} className="reveal">
               <AlbumCard
                 album={album}
-                aspect="aspect-[4/5]"
-                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                index={i}
+                sizes="(min-width: 768px) 40vw, 50vw"
               />
             </div>
           ))}

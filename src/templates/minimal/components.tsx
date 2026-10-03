@@ -1,9 +1,31 @@
 import Link from "next/link";
 
 import { ResponsiveImage } from "@/components/site/responsive-image";
-import { formatPrice } from "@/lib/format";
+import { formatDate, formatPrice } from "@/lib/format";
 import type { AlbumWithCover, PackageWithFeatures, Testimonial } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+const DEFAULT_INVITE =
+  "Together with our families, we invite you to celebrate this story.";
+
+/** Renders "A & B" with a highlighted ampersand when present. */
+function InvitationTitle({
+  name,
+  ampClassName,
+}: {
+  name: string;
+  ampClassName: string;
+}) {
+  const parts = name.split(/\s*&\s*/);
+  if (parts.length < 2) return <>{name}</>;
+  return (
+    <>
+      {parts[0]}
+      <span className={ampClassName}> &amp; </span>
+      {parts.slice(1).join(" & ")}
+    </>
+  );
+}
 
 export function Container({
   className,
@@ -121,40 +143,195 @@ export function StatusBadge({ label }: { label: string }) {
   );
 }
 
+/**
+ * Invitation-template album card: full preview layout inside a phone frame
+ * (header → photo → names → date → quote → scroll), with the album title under it.
+ */
 export function AlbumCard({
   album,
-  aspect = "aspect-[4/5]",
   sizes,
   priority,
+  variant = "auto",
+  index = 0,
 }: {
   album: AlbumWithCover;
-  aspect?: string;
   sizes: string;
   priority?: boolean;
+  /** Force a look; default alternates by index. */
+  variant?: "auto" | "light" | "dark";
+  index?: number;
 }) {
+  const theme =
+    variant === "auto" ? (index % 2 === 0 ? "light" : "dark") : variant;
+  const isLight = theme === "light";
+  const quote = album.description?.trim() || DEFAULT_INVITE;
+  const dateLine = formatDate(album.created_at, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).toUpperCase();
+  const accent = isLight ? "text-[#b8893d]" : "text-[#e0c07a]";
+  const muted = isLight ? "text-[#6b5648]" : "text-white/70";
+  const hairline = isLight ? "bg-[#c9a46a]/70" : "bg-white/35";
+
   return (
-    <Link href={`/portfolio/${album.slug}`} className="group block">
-      <div className={cn("relative overflow-hidden rounded-[1.5rem] bg-veil md:rounded-[2rem]", aspect)}>
-        {album.cover && (
+    <Link
+      href={`/portfolio/${album.slug}`}
+      className="album-card-enter group block"
+      style={{ animationDelay: `${Math.min(index, 8) * 80}ms` }}
+    >
+      <article
+        className={cn(
+          "relative aspect-[9/16] overflow-hidden rounded-[1.35rem] shadow-[0_18px_50px_-24px_rgba(20,10,10,0.55)] transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] group-hover:-translate-y-1.5 group-hover:shadow-[0_28px_60px_-20px_rgba(20,10,10,0.45)] md:rounded-[1.75rem]",
+          isLight ? "bg-[#f7f1e6] text-[#2a1f18]" : "bg-[#3a1218] text-white",
+        )}
+      >
+        {/* Dark theme: full-bleed photo + gradient */}
+        {!isLight && album.cover && (
           <ResponsiveImage
             image={album.cover}
-            alt={`${album.name} — cover photograph`}
+            alt=""
             sizes={sizes}
             fill
             priority={priority}
-            className="transition-transform duration-700 ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.04]"
+            className="transition-transform duration-[1.1s] ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.05]"
           />
         )}
+        {!isLight && (
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-b from-[#1a2a32]/55 via-[#3a1218]/45 to-[#2a0c12]/96"
+          />
+        )}
+
+        {/* Light theme: double gold frame */}
+        {isLight && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-[6px] rounded-[1.1rem] border border-[#c9a46a]/55 md:inset-2 md:rounded-[1.4rem]"
+          />
+        )}
+
+        <div className="absolute inset-0 flex flex-col items-center px-3 py-4 md:px-5 md:py-6">
+          {/* Header */}
+          <div className="flex flex-col items-center text-center">
+            <span
+              aria-hidden
+              className={cn(
+                "mb-1.5 text-[0.7rem] leading-none md:mb-2 md:text-sm",
+                accent,
+              )}
+            >
+              ✦
+            </span>
+            <p
+              className={cn(
+                "text-[0.5rem] font-medium tracking-[0.26em] uppercase md:text-[0.62rem]",
+                muted,
+              )}
+            >
+              The {album.category?.trim() || "Wedding"} Celebration of
+            </p>
+          </div>
+
+          {/* Light: arched photo */}
+          {isLight && (
+            <div className="relative mt-2.5 w-[68%] shrink-0 md:mt-3.5">
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute -top-2 left-1/2 z-10 -translate-x-1/2 text-[0.65rem] md:-top-2.5 md:text-xs",
+                  accent,
+                )}
+              >
+                ◆
+              </span>
+              <div className="relative overflow-hidden rounded-t-full bg-[#ebe2d4] shadow-[inset_0_0_0_1.5px_#c9a46a]">
+                <div className="relative aspect-[3/4]">
+                  {album.cover ? (
+                    <ResponsiveImage
+                      image={album.cover}
+                      alt={`${album.name} — cover photograph`}
+                      sizes={sizes}
+                      fill
+                      priority={priority}
+                      className="transition-transform duration-700 ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.05]"
+                    />
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Spacer pushes copy down on dark cards where photo is background */}
+          {!isLight && <div className="min-h-[28%] flex-1" />}
+
+          {/* Names + date + quote */}
+          <div
+            className={cn(
+              "mt-auto flex w-full flex-col items-center px-0.5 text-center",
+              isLight ? "pt-2.5" : "pt-0",
+            )}
+          >
+            <h3 className="font-display text-[clamp(1rem,3.2vw,1.55rem)] leading-[1.05] tracking-[-0.03em]">
+              <InvitationTitle name={album.name} ampClassName={accent} />
+            </h3>
+
+            <div className={cn("mt-2.5 flex w-full max-w-[85%] items-center gap-2 md:mt-3")}>
+              <span aria-hidden className={cn("h-px flex-1", hairline)} />
+              <span aria-hidden className={cn("text-[0.45rem]", accent)}>
+                ✦
+              </span>
+              <span aria-hidden className={cn("h-px flex-1", hairline)} />
+            </div>
+
+            <p
+              className={cn(
+                "mt-2 text-[0.48rem] font-medium tracking-[0.14em] md:mt-2.5 md:text-[0.58rem]",
+                muted,
+              )}
+            >
+              {dateLine}
+            </p>
+            {album.photo_count > 0 && (
+              <p className={cn("mt-0.5 text-[0.48rem] tracking-[0.12em] md:text-[0.55rem]", muted)}>
+                {album.photo_count} photographs
+              </p>
+            )}
+
+            <div className={cn("mt-2 flex w-full max-w-[85%] items-center gap-2 md:mt-2.5")}>
+              <span aria-hidden className={cn("h-px flex-1", hairline)} />
+            </div>
+
+            <p
+              className={cn(
+                "mt-2 line-clamp-3 max-w-[95%] text-[0.58rem] leading-relaxed italic md:mt-2.5 md:text-[0.7rem]",
+                muted,
+              )}
+            >
+              “{quote}”
+            </p>
+
+            <div className={cn("mt-3 flex flex-col items-center gap-1.5 md:mt-4", muted)}>
+              <span className="text-[0.48rem] tracking-[0.32em] uppercase md:text-[0.55rem]">
+                Scroll
+              </span>
+              <span aria-hidden className={cn("h-4 w-px md:h-5", hairline)} />
+            </div>
+          </div>
+        </div>
+      </article>
+
+      {/* Template-list caption under the phone frame */}
+      <div className="mt-3 text-center md:mt-4">
+        <p className="font-display text-base tracking-[-0.02em] md:text-xl">
+          {album.name}
+        </p>
         {album.category && (
-          <span className="absolute top-4 left-4 rounded-full bg-paper/90 px-3 py-1 text-xs font-medium text-ink backdrop-blur-sm">
-            {album.category}
-          </span>
+          <p className="mt-0.5 text-xs text-muted-ink md:text-sm">{album.category}</p>
         )}
       </div>
-      <h3 className="mt-4 font-display text-xl tracking-[-0.02em] md:text-2xl">{album.name}</h3>
-      {album.description && (
-        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-ink">{album.description}</p>
-      )}
     </Link>
   );
 }

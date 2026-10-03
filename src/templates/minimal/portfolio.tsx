@@ -6,7 +6,7 @@ export function MinimalPortfolioPage({ site, albums }: PortfolioPageProps) {
   return (
     <>
       <PageIntro label="Portfolio" title="Stories through the lens.">
-        A curated collection of projects showcasing emotion, atmosphere, and visual storytelling.
+        Choose a chapter — each album opens as a curated invitation into the day.
       </PageIntro>
       <Container className="pb-20 md:pb-28">
         {albums.length > 0 ? (

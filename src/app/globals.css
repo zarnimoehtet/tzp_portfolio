@@ -277,12 +277,48 @@
   }
 }
 
+@keyframes site-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes site-collage-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.album-card-enter {
+  animation: site-card-enter 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.collage-tile {
+  animation: site-collage-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
 /* Scroll-driven reveal: pure CSS, no JavaScript. Older browsers just show content. */
 @supports (animation-timeline: view()) {
   .reveal {
     animation: site-reveal linear both;
     animation-timeline: view();
     animation-range: entry 0% entry 35%;
+  }
+
+  .collage-tile {
+    animation: site-collage-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
   }
 }
 
@@ -318,6 +354,8 @@
   .hero-image,
   .fade-up,
   .fade-in,
+  .album-card-enter,
+  .collage-tile,
   .marquee-track {
     animation: none !important;
   }

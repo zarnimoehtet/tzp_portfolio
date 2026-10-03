@@ -2,10 +2,9 @@ import Link from "next/link";
 
 import { PhotoGallery } from "@/components/site/photo-gallery";
 import type { AlbumPageProps } from "@/templates/types";
-import { ContactCta, Container, EmptyState, SectionLabel } from "./components";
+import { EmptyState } from "./components";
 
 export function MinimalAlbumPage({
-  site,
   album,
   photos,
   hasMore,
@@ -13,56 +12,62 @@ export function MinimalAlbumPage({
   next,
 }: AlbumPageProps) {
   return (
-    <>
-      <Container className="pt-28 pb-10 md:pt-36 md:pb-14">
+    <div className="album-collage bg-[#3a1218] text-white">
+      <header className="mx-auto max-w-[1200px] px-4 pt-24 pb-8 md:px-8 md:pt-28 md:pb-10">
         <nav aria-label="Breadcrumb" className="fade-up">
           <Link
             href="/portfolio"
-            className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm text-muted-ink transition-colors hover:text-ink"
+            className="inline-flex items-center gap-2 text-xs tracking-[0.22em] text-white/55 uppercase transition-colors hover:text-white"
           >
             ← Portfolio
           </Link>
         </nav>
-        <div className="mt-10 grid gap-8 md:grid-cols-12">
-          <div className="md:col-span-8">
-            {album.category && (
-              <SectionLabel className="fade-up">{album.category}</SectionLabel>
-            )}
-            <h1 className="fade-up mt-4 font-display text-5xl tracking-[-0.035em] [animation-delay:100ms] md:text-7xl">
-              {album.name}
-            </h1>
-          </div>
-          <div className="fade-up flex flex-col justify-end gap-3 [animation-delay:200ms] md:col-span-4">
-            {album.description && (
-              <p className="text-sm leading-relaxed whitespace-pre-line text-muted-ink md:text-[0.975rem]">
-                {album.description}
-              </p>
-            )}
-            <p className="text-sm text-muted-ink">{album.photo_count} photographs</p>
-          </div>
+        <div className="mt-8 max-w-2xl">
+          {album.category && (
+            <p className="fade-up text-[0.7rem] tracking-[0.28em] text-white/50 uppercase">
+              {album.category}
+            </p>
+          )}
+          <h1 className="fade-up mt-3 font-display text-4xl tracking-[-0.035em] [animation-delay:100ms] md:text-6xl">
+            {album.name}
+          </h1>
+          {album.description && (
+            <p className="fade-up mt-4 max-w-md text-sm leading-relaxed text-white/65 [animation-delay:180ms] md:text-base">
+              {album.description}
+            </p>
+          )}
+          <p className="fade-up mt-3 text-xs tracking-[0.18em] text-white/40 uppercase [animation-delay:240ms]">
+            {album.photo_count} photographs
+          </p>
         </div>
-      </Container>
+      </header>
 
-      <Container className="pb-20 md:pb-28">
+      <div className="mx-auto max-w-[1200px] px-1.5 pb-16 sm:px-2 md:px-4 md:pb-24">
         {photos.length > 0 ? (
           <PhotoGallery
             initialPhotos={photos}
             albumSlug={album.slug}
             initialHasMore={hasMore}
-            priorityCount={3}
+            priorityCount={4}
+            variant="collage"
           />
         ) : (
-          <EmptyState>Photographs for this story are on their way.</EmptyState>
+          <div className="px-4">
+            <EmptyState>Photographs for this story are on their way.</EmptyState>
+          </div>
         )}
-      </Container>
+      </div>
 
       {(previous || next) && (
-        <nav aria-label="More stories" className="border-t border-line">
-          <Container className="grid grid-cols-2 gap-6 py-12 md:py-16">
+        <nav
+          aria-label="More stories"
+          className="border-t border-white/10"
+        >
+          <div className="mx-auto grid max-w-[1200px] grid-cols-2 gap-6 px-5 py-12 md:px-8 md:py-16">
             <div>
               {previous && (
                 <Link href={`/portfolio/${previous.slug}`} className="group block">
-                  <p className="text-xs font-medium text-muted-ink">← Previous</p>
+                  <p className="text-xs tracking-[0.18em] text-white/45 uppercase">← Previous</p>
                   <p className="mt-3 font-display text-xl tracking-[-0.02em] transition-opacity group-hover:opacity-60 md:text-3xl">
                     {previous.name}
                   </p>
@@ -72,18 +77,16 @@ export function MinimalAlbumPage({
             <div className="text-right">
               {next && (
                 <Link href={`/portfolio/${next.slug}`} className="group block">
-                  <p className="text-xs font-medium text-muted-ink">Next →</p>
+                  <p className="text-xs tracking-[0.18em] text-white/45 uppercase">Next →</p>
                   <p className="mt-3 font-display text-xl tracking-[-0.02em] transition-opacity group-hover:opacity-60 md:text-3xl">
                     {next.name}
                   </p>
                 </Link>
               )}
             </div>
-          </Container>
+          </div>
         </nav>
       )}
-
-      <ContactCta availability={site.contact.availability} />
-    </>
+    </div>
   );
 }
