@@ -60,7 +60,7 @@ function Hero({ site, fallbackImage }: Pick<HomePageProps, "site"> & {
             href="/contact"
             className="inline-flex items-center bg-white px-6 py-3.5 text-sm font-medium text-black transition-opacity hover:opacity-90"
           >
-            Work with us
+            Work with me
           </Link>
         </div>
       </Container>
