@@ -17,12 +17,12 @@ interface PhotoGalleryProps {
   priorityCount?: number;
   className?: string;
   loadMoreLabel?: string;
-  /** Classic masonry columns, or wedding-template collage on a dark ground. */
-  variant?: "masonry" | "collage";
-}
-
-function framed(index: number) {
-  return index % 3 === 0 || index % 5 === 1;
+  /**
+   * masonry — multi-column CSS masonry (may crop nothing; intrinsic height).
+   * collage — fixed mosaic tiles (crops with object-cover).
+   * natural — full image width/height, no crop (1 col mobile, 2 col desktop).
+   */
+  variant?: "masonry" | "collage" | "natural";
 }
 
 function CollageTile({
@@ -46,7 +46,7 @@ function CollageTile({
       <button
         type="button"
         onClick={onOpen}
-        className="group relative block size-full cursor-zoom-in overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        className="group relative block size-full cursor-zoom-in overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
         aria-label={`Open ${photo.alt}`}
       >
         <ResponsiveImage
@@ -57,12 +57,6 @@ function CollageTile({
           fill
           className="transition-transform duration-[1.1s] ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.04]"
         />
-        {framed(index) && (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-[7px] border border-white/85 sm:inset-2.5"
-          />
-        )}
       </button>
     </div>
   );
@@ -86,7 +80,7 @@ function CollageGallery({
   }
 
   return (
-    <div className={cn("flex flex-col gap-1.5 sm:gap-2 md:gap-2.5", className)}>
+    <div className={cn("flex flex-col gap-1 sm:gap-1.5 md:gap-2.5", className)}>
       {blocks.map((block, blockIndex) => {
         const base = blockIndex * 3;
         const tallLeft = blockIndex % 2 === 0;
@@ -108,7 +102,7 @@ function CollageGallery({
           return (
             <div
               key={block[0].id}
-              className="grid grid-cols-2 gap-1.5 sm:gap-2 md:gap-2.5"
+              className="grid grid-cols-2 gap-1 sm:gap-1.5 md:gap-2.5"
             >
               {block.map((photo, j) => (
                 <CollageTile
@@ -128,7 +122,7 @@ function CollageGallery({
         return (
           <div
             key={a.id}
-            className="grid grid-cols-2 grid-rows-2 gap-1.5 sm:gap-2 md:gap-2.5"
+            className="grid grid-cols-2 grid-rows-2 gap-1 sm:gap-1.5 md:gap-2.5"
           >
             <CollageTile
               photo={a}
@@ -136,7 +130,7 @@ function CollageGallery({
               priority={base < priorityCount}
               onOpen={() => onOpen(base)}
               className={cn(
-                "row-span-2 h-full min-h-[14rem] sm:min-h-[18rem] md:min-h-[22rem]",
+                "row-span-2 h-full min-h-[11.5rem] sm:min-h-[16rem] md:min-h-[22rem]",
                 tallLeft ? "col-start-1 row-start-1" : "col-start-2 row-start-1",
               )}
             />
@@ -225,12 +219,7 @@ export function PhotoGallery({
         type="button"
         onClick={loadMore}
         disabled={isPending}
-        className={cn(
-          "eyebrow disabled:opacity-50",
-          variant === "collage"
-            ? "text-white/55 transition-colors hover:text-white"
-            : "link-rule",
-        )}
+        className="eyebrow link-rule disabled:opacity-50"
       >
         {isPending ? "Loading…" : loadMoreLabel}
       </button>
@@ -247,6 +236,51 @@ export function PhotoGallery({
           onOpen={setActive}
         />
         {loadMoreControl}
+        <Lightbox
+          photos={photos}
+          index={active}
+          onIndexChange={setActive}
+          onNearEnd={hasMore ? loadMore : undefined}
+        />
+      </>
+    );
+  }
+
+  if (variant === "natural") {
+    return (
+      <>
+        <ul
+          className={cn(
+            "grid grid-cols-2 items-start gap-1 sm:gap-1.5 md:gap-2.5",
+            className,
+          )}
+        >
+          {photos.map((photo, i) => (
+            <li
+              key={photo.id}
+              className="collage-tile"
+              style={{ animationDelay: `${Math.min(i, 12) * 55}ms` }}
+            >
+              <button
+                type="button"
+                onClick={() => setActive(i)}
+                className="group block w-full cursor-zoom-in overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                aria-label={`Open ${photo.alt}`}
+              >
+                <ResponsiveImage
+                  image={photo.image}
+                  alt={photo.alt}
+                  sizes="50vw"
+                  priority={i < priorityCount}
+                  className="h-auto w-full transition-opacity duration-300 group-active:opacity-90 md:group-hover:opacity-90"
+                />
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {loadMoreControl}
+
         <Lightbox
           photos={photos}
           index={active}

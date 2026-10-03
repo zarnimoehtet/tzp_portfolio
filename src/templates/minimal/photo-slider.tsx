@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 
 /** Repeating size rhythm: large square, small portrait, wide landscape. */
 const SHAPES = [
-  { width: "w-[clamp(15rem,31vw,29rem)]", aspect: "aspect-square", sizes: "31vw" },
-  { width: "w-[clamp(10rem,17vw,16rem)]", aspect: "aspect-[6/7]", sizes: "17vw" },
-  { width: "w-[clamp(14rem,31vw,29rem)]", aspect: "aspect-[4/3]", sizes: "31vw" },
+  { width: "w-[clamp(12.5rem,58vw,29rem)]", aspect: "aspect-square", sizes: "58vw" },
+  { width: "w-[clamp(9rem,38vw,16rem)]", aspect: "aspect-[6/7]", sizes: "38vw" },
+  { width: "w-[clamp(12rem,56vw,29rem)]", aspect: "aspect-[4/3]", sizes: "56vw" },
 ];
 
 /** Enough slides that one copy of the strip is always wider than the screen. */
@@ -17,12 +17,17 @@ const MIN_SLIDES = 8;
 function Slide({ photo, index }: { photo: GalleryPhoto; index: number }) {
   const shape = SHAPES[index % SHAPES.length];
   return (
-    <figure className={cn("shrink-0 pr-3 md:pr-4", shape.width)}>
+    <figure className={cn("shrink-0 pr-2.5 md:pr-4", shape.width)}>
       <div className={cn("relative overflow-hidden bg-white/5", shape.aspect)}>
-        <ResponsiveImage image={photo.image} alt={photo.alt} sizes={`(min-width: 768px) ${shape.sizes}, 60vw`} fill />
+        <ResponsiveImage
+          image={photo.image}
+          alt={photo.alt}
+          sizes={`(min-width: 768px) 31vw, ${shape.sizes}`}
+          fill
+        />
       </div>
       {photo.title && (
-        <figcaption className="mt-4 truncate text-lg font-semibold tracking-[-0.02em] uppercase md:mt-5 md:text-2xl">
+        <figcaption className="mt-3 truncate text-sm font-semibold tracking-[-0.02em] uppercase md:mt-5 md:text-2xl">
           {photo.title}
         </figcaption>
       )}

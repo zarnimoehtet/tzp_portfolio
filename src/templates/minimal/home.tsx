@@ -39,26 +39,26 @@ function Hero({ site, fallbackImage }: Pick<HomePageProps, "site"> & {
         className="absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/25 to-black/65"
       />
 
-      <Container className="flex max-w-[1400px] flex-1 flex-col justify-center pt-28 pb-28 md:pt-32">
+      <Container className="flex max-w-[1400px] flex-1 flex-col justify-center pt-24 pb-24 md:pt-32 md:pb-28">
         <h1
           className={cn(
             "fade-up max-w-[14ch] font-display leading-[0.95] tracking-[-0.03em] whitespace-pre-line text-balance",
             title.length <= 32
-              ? "text-[clamp(3.25rem,10.5vw,9.5rem)]"
-              : "text-[clamp(2.5rem,6.5vw,6rem)] max-w-[20ch]",
+              ? "text-[clamp(2.75rem,11vw,9.5rem)]"
+              : "text-[clamp(2.25rem,7vw,6rem)] max-w-[20ch]",
           )}
         >
           {title}
         </h1>
         {settings.hero_subtitle && (
-          <p className="fade-up mt-6 max-w-sm text-base leading-relaxed text-white/85 [animation-delay:150ms] md:mt-8 md:text-lg">
+          <p className="fade-up mt-5 max-w-sm text-[0.9375rem] leading-relaxed text-white/85 [animation-delay:150ms] md:mt-8 md:text-lg">
             {settings.hero_subtitle}
           </p>
         )}
-        <div className="fade-up mt-8 [animation-delay:300ms] md:mt-10">
+        <div className="fade-up mt-7 [animation-delay:300ms] md:mt-10">
           <Link
             href="/contact"
-            className="inline-flex items-center bg-white px-6 py-3.5 text-sm font-medium text-black transition-opacity hover:opacity-90"
+            className="inline-flex items-center bg-white px-5 py-3 text-sm font-medium text-black transition-opacity hover:opacity-90 md:px-6 md:py-3.5"
           >
             Work with me
           </Link>
@@ -67,10 +67,10 @@ function Hero({ site, fallbackImage }: Pick<HomePageProps, "site"> & {
 
       <a
         href="#featured"
-        className="eyebrow absolute bottom-7 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3 text-white/60 transition-colors hover:text-white"
+        className="eyebrow absolute bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-1/2 flex -translate-x-1/2 flex-col items-center gap-2.5 text-white/60 transition-colors hover:text-white md:bottom-7 md:gap-3"
       >
         Scroll
-        <span aria-hidden className="h-8 w-px bg-current" />
+        <span aria-hidden className="h-6 w-px bg-current md:h-8" />
       </a>
     </section>
   );
@@ -83,7 +83,7 @@ function FeaturedSlider({ photos }: { photos: HomePageProps["selectedWork"] }) {
     <section
       id="featured"
       aria-label="Featured photographs"
-      className="relative isolate overflow-hidden bg-[#0e0e0e] py-20 text-white md:py-28"
+      className="relative isolate overflow-hidden bg-[#0e0e0e] py-14 text-white md:py-28"
     >
       <div
         aria-hidden
@@ -98,9 +98,9 @@ function Albums({ albums }: { albums: HomePageProps["featuredAlbums"] }) {
   if (albums.length === 0) return null;
 
   return (
-    <section className="py-20 md:py-28">
+    <section className="py-14 md:py-28">
       <Container>
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between md:gap-8">
           <SectionHeading
             label="Albums"
             title="Stories through the lens."
@@ -111,13 +111,13 @@ function Albums({ albums }: { albums: HomePageProps["featuredAlbums"] }) {
           </PillLink>
         </div>
 
-        <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-5 md:gap-8">
+        <div className="mt-8 grid grid-cols-2 gap-x-2.5 gap-y-6 sm:gap-x-4 sm:gap-y-8 md:mt-12 md:gap-x-8 md:gap-y-12">
           {albums.slice(0, 4).map((album, i) => (
             <div key={album.id} className="reveal">
               <AlbumCard
                 album={album}
                 index={i}
-                sizes="(min-width: 768px) 40vw, 50vw"
+                sizes="(min-width: 768px) 40vw, 48vw"
               />
             </div>
           ))}

@@ -13,7 +13,7 @@ export function Container({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn("mx-auto w-full max-w-[1200px] px-5 md:px-8", className)}>
+    <div className={cn("mx-auto w-full max-w-[1200px] px-4 md:px-8", className)}>
       {children}
     </div>
   );
@@ -72,13 +72,13 @@ export function PageIntro({
   children?: React.ReactNode;
 }) {
   return (
-    <Container className="pt-32 pb-12 md:pt-40 md:pb-16">
+    <Container className="pt-24 pb-8 md:pt-40 md:pb-16">
       <SectionLabel className="fade-up">{label}</SectionLabel>
-      <h1 className="fade-up mt-5 max-w-3xl font-display text-[2.75rem] leading-[1.05] tracking-[-0.035em] text-balance [animation-delay:100ms] md:text-6xl lg:text-7xl">
+      <h1 className="fade-up mt-4 max-w-3xl font-display text-[2.35rem] leading-[1.05] tracking-[-0.035em] text-balance [animation-delay:100ms] md:mt-5 md:text-6xl lg:text-7xl">
         {title}
       </h1>
       {children && (
-        <div className="fade-up mt-5 max-w-xl text-base leading-relaxed text-muted-ink [animation-delay:200ms] md:text-lg">
+        <div className="fade-up mt-4 max-w-xl text-[0.9375rem] leading-relaxed text-muted-ink [animation-delay:200ms] md:mt-5 md:text-lg">
           {children}
         </div>
       )}
@@ -121,7 +121,7 @@ export function StatusBadge({ label }: { label: string }) {
   );
 }
 
-/** Phone-frame album card: full-bleed cover image only. */
+/** Phone-frame album card: full-bleed cover image with the album name under it. */
 export function AlbumCard({
   album,
   sizes,
@@ -138,9 +138,8 @@ export function AlbumCard({
       href={`/portfolio/${album.slug}`}
       className="album-card-enter group block"
       style={{ animationDelay: `${Math.min(index, 8) * 80}ms` }}
-      aria-label={album.name}
     >
-      <article className="relative aspect-[9/16] overflow-hidden rounded-[1.35rem] bg-veil shadow-[0_18px_50px_-24px_rgba(20,10,10,0.55)] transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] group-hover:-translate-y-1.5 group-hover:shadow-[0_28px_60px_-20px_rgba(20,10,10,0.45)] md:rounded-[1.75rem]">
+      <article className="relative aspect-[9/16] overflow-hidden rounded-2xl bg-veil shadow-[0_12px_32px_-18px_rgba(20,10,10,0.45)] transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] active:scale-[0.985] md:rounded-[1.75rem] md:shadow-[0_18px_50px_-24px_rgba(20,10,10,0.55)] md:group-hover:-translate-y-1.5 md:group-hover:shadow-[0_28px_60px_-20px_rgba(20,10,10,0.45)] md:active:scale-100">
         {album.cover ? (
           <ResponsiveImage
             image={album.cover}
@@ -148,10 +147,13 @@ export function AlbumCard({
             sizes={sizes}
             fill
             priority={priority}
-            className="transition-transform duration-[1.1s] ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.04]"
+            className="transition-transform duration-[1.1s] ease-[cubic-bezier(.2,.7,.2,1)] md:group-hover:scale-[1.04]"
           />
         ) : null}
       </article>
+      <h3 className="mt-2.5 line-clamp-2 text-center font-display text-[0.9375rem] leading-snug tracking-[-0.02em] md:mt-4 md:text-xl">
+        {album.name}
+      </h3>
     </Link>
   );
 }

@@ -19,8 +19,6 @@ export function Header({ name, logo }: HeaderProps) {
   const [open, setOpen] = useState(false);
 
   const hasHero = pathname === "/";
-  const onAlbumDetail = /^\/portfolio\/.+/.test(pathname);
-  const darkSurface = hasHero || onAlbumDetail;
 
   useEffect(() => {
     const onScroll = () => {
@@ -50,7 +48,7 @@ export function Header({ name, logo }: HeaderProps) {
   }, [open]);
 
   const navLinks = NAV_LINKS.filter((l) => l.href !== "/contact");
-  const overDark = darkSurface && !scrolled && !open;
+  const overHero = hasHero && !scrolled && !open;
 
   return (
     <>
@@ -60,17 +58,15 @@ export function Header({ name, logo }: HeaderProps) {
           open
             ? "bg-paper shadow-[0_1px_0_var(--site-line)]"
             : scrolled
-              ? onAlbumDetail
-                ? "bg-[#3a1218]/90 shadow-[0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md text-white"
-                : "bg-paper/90 shadow-[0_1px_0_var(--site-line)] backdrop-blur-md"
+              ? "bg-paper/90 shadow-[0_1px_0_var(--site-line)] backdrop-blur-md"
               : "bg-transparent",
-          overDark && "text-white",
+          overHero && "text-white",
         )}
       >
         <div
           className={cn(
-            "mx-auto flex h-16 items-center justify-between gap-4 px-5 md:h-[4.5rem] md:px-8",
-            hasHero || onAlbumDetail ? "max-w-[1400px]" : "max-w-[1200px]",
+            "mx-auto flex h-14 items-center justify-between gap-4 px-4 pt-[env(safe-area-inset-top)] md:h-[4.5rem] md:px-8",
+            hasHero ? "max-w-[1400px]" : "max-w-[1200px]",
           )}
         >
           <Link href="/" className="relative z-50 flex items-center" aria-label={`${name} — home`}>
@@ -95,9 +91,7 @@ export function Header({ name, logo }: HeaderProps) {
             <ul
               className={cn(
                 "flex items-center gap-1 rounded-full border p-1 backdrop-blur-md transition-colors duration-300",
-                overDark || (onAlbumDetail && scrolled)
-                  ? "border-white/20 bg-white/10"
-                  : "border-line/80 bg-paper/70",
+                overHero ? "border-white/20 bg-white/15" : "border-line/80 bg-paper/70",
               )}
             >
               {navLinks.map((link) => {
@@ -110,10 +104,8 @@ export function Header({ name, logo }: HeaderProps) {
                       className={cn(
                         "inline-flex rounded-full px-4 py-2 text-[0.8125rem] font-medium transition-colors",
                         active
-                          ? overDark || (onAlbumDetail && scrolled)
-                            ? "bg-white text-black"
-                            : "bg-ink text-paper"
-                          : overDark || (onAlbumDetail && scrolled)
+                          ? "bg-ink text-paper"
+                          : overHero
                             ? "text-white/85 hover:text-white"
                             : "text-muted-ink hover:text-ink",
                       )}
@@ -131,7 +123,7 @@ export function Header({ name, logo }: HeaderProps) {
               href="/contact"
               className={cn(
                 "pill-btn hidden !px-5 !py-2.5 text-[0.8125rem] sm:inline-flex",
-                (overDark || (onAlbumDetail && scrolled)) && "!bg-white !text-black",
+                overHero && "!bg-white !text-black",
               )}
             >
               Contact
@@ -140,7 +132,7 @@ export function Header({ name, logo }: HeaderProps) {
               type="button"
               className={cn(
                 "inline-flex size-10 items-center justify-center rounded-full border md:hidden",
-                overDark || (onAlbumDetail && scrolled) ? "border-white/30" : "border-line",
+                overHero ? "border-white/30" : "border-line",
               )}
               aria-expanded={open}
               aria-controls="mobile-menu"
@@ -173,7 +165,10 @@ export function Header({ name, logo }: HeaderProps) {
         hidden={!open}
         className="fade-in fixed inset-0 z-30 overflow-y-auto bg-paper text-ink md:hidden"
       >
-        <nav aria-label="Mobile" className="flex min-h-full flex-col px-5 pt-24 pb-10">
+        <nav
+          aria-label="Mobile"
+          className="flex min-h-full flex-col px-5 pt-[calc(4.5rem+env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]"
+        >
           <ul className="divide-y divide-line border-y border-line">
             {[{ href: "/", label: "Home" }, ...NAV_LINKS].map((link) => {
               const active =
@@ -184,8 +179,8 @@ export function Header({ name, logo }: HeaderProps) {
                     href={link.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "flex items-center justify-between py-5 font-display text-3xl tracking-[-0.03em] transition-colors",
-                      active ? "text-ink" : "text-muted-ink hover:text-ink",
+                      "flex items-center justify-between py-4 font-display text-[2rem] tracking-[-0.03em] transition-colors",
+                      active ? "text-ink" : "text-muted-ink active:text-ink",
                     )}
                   >
                     {link.label}
@@ -197,7 +192,7 @@ export function Header({ name, logo }: HeaderProps) {
               );
             })}
           </ul>
-          <Link href="/contact" className="pill-btn mt-auto w-full !py-4">
+          <Link href="/contact" className="pill-btn mt-8 w-full !py-4">
             Get in touch
           </Link>
         </nav>

@@ -52,14 +52,14 @@ export function AlbumFilter({ albums }: { albums: AlbumWithCover[] }) {
       {visible.length === 0 ? (
         <EmptyState>No albums in this category yet.</EmptyState>
       ) : (
-        <ul className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 md:mt-12 md:gap-8">
+        <ul className="mt-8 grid grid-cols-2 gap-x-2.5 gap-y-6 sm:gap-x-4 sm:gap-y-8 md:mt-12 md:gap-x-8 md:gap-y-12">
           {visible.map((album, i) => (
             <li key={album.id}>
               <AlbumCard
                 album={album}
                 index={i}
                 priority={i < 4}
-                sizes="(min-width: 768px) 40vw, 50vw"
+                sizes="(min-width: 768px) 40vw, 48vw"
               />
             </li>
           ))}
